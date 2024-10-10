@@ -9,11 +9,36 @@ export function updateToPrivate(
     <T extends ts.Node>(context: ts.TransformationContext) =>
     (rootNode: T) => {
       function visit(node: ts.Node): ts.Node {
-        if (ts.isPropertyDeclaration(node) || ts.isMethodDeclaration(node)) {
-          if (
-            ts.isIdentifier(node.name) &&
-            node.name.text === declarationName
-          ) {
+        // Handle Property Declarations (variables)
+        if (ts.isPropertyDeclaration(node) && ts.isIdentifier(node.name)) {
+          if (node.name.text === declarationName) {
+            if (
+              !node.modifiers?.some(
+                (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
+              )
+            ) {
+              const privateModifier = ts.factory.createModifier(
+                ts.SyntaxKind.PrivateKeyword
+              );
+              const updatedModifiers = ts.factory.createNodeArray([
+                privateModifier,
+                ...(node.modifiers || []),
+              ]);
+              return ts.factory.updatePropertyDeclaration(
+                node,
+                updatedModifiers,
+                node.name,
+                node.questionToken || node.exclamationToken, // Handle question/exclamation tokens
+                node.type,
+                node.initializer
+              );
+            }
+          }
+        }
+
+        // Handle Method Declarations (functions)
+        if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) {
+          if (node.name.text === declarationName) {
             if (
               !node.modifiers?.some(
                 (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
@@ -40,9 +65,15 @@ export function updateToPrivate(
             }
           }
         }
+
         return ts.visitEachChild(node, visit, context);
       }
+
       return ts.visitNode(rootNode, visit);
     };
-  return ts.transform(sourceFile, [transformer]).transformed[0];
+
+  // Cast the result to ts.SourceFile, since the transformer operates on a generic Node
+  const result = ts.transform(sourceFile, [transformer])
+    .transformed[0] as ts.SourceFile;
+  return result;
 }
