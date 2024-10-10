@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { analyzeAngularComponent } from "./analyze-angular-component";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -22,6 +23,31 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(disposable);
+
+  const analyzeComponentCommand = vscode.commands.registerCommand(
+    "publicprivate.analyzeComponent",
+    async () => {
+      const activeEditor = vscode.window.activeTextEditor;
+
+      // If there's no active editor or it's not a TypeScript file, show a warning
+      if (
+        !activeEditor ||
+        !activeEditor.document.fileName.endsWith(".component.ts")
+      ) {
+        vscode.window.showWarningMessage(
+          "Please open a .component.ts file to analyze."
+        );
+        return;
+      }
+
+      // Call your analysis logic, passing in the current document
+      await analyzeAngularComponent(activeEditor.document);
+
+      vscode.window.showInformationMessage("Component analysis complete!");
+    }
+  );
+
+  context.subscriptions.push(analyzeComponentCommand);
 }
 
 // This method is called when your extension is deactivated
