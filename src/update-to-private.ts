@@ -9,63 +9,83 @@ export function updateToPrivate(
     <T extends ts.Node>(context: ts.TransformationContext) =>
     (rootNode: T) => {
       function visit(node: ts.Node): ts.Node {
-        // Handle Property Declarations (variables)
-        if (ts.isPropertyDeclaration(node) && ts.isIdentifier(node.name)) {
-          if (node.name.text === declarationName) {
-            // Check if it's already private, skip if it is
+        // Ensure that we're inside a class and the node is a method declaration
+        if (ts.isClassDeclaration(node)) {
+          const updatedMembers = node.members.map((member) => {
+            // Handle Method Declarations (functions) inside the class
             if (
-              !node.modifiers?.some(
-                (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
-              )
+              ts.isMethodDeclaration(member) &&
+              ts.isIdentifier(member.name)
             ) {
-              const privateModifier = ts.factory.createModifier(
-                ts.SyntaxKind.PrivateKeyword
-              );
-              const updatedModifiers = ts.factory.createNodeArray([
-                privateModifier,
-                ...(node.modifiers || []),
-              ]);
-              return ts.factory.updatePropertyDeclaration(
-                node,
-                updatedModifiers,
-                node.name,
-                node.questionToken || node.exclamationToken,
-                node.type,
-                node.initializer
-              );
+              if (member.name.text === declarationName) {
+                if (
+                  !member.modifiers?.some(
+                    (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
+                  )
+                ) {
+                  const privateModifier = ts.factory.createModifier(
+                    ts.SyntaxKind.PrivateKeyword
+                  );
+                  const updatedModifiers = ts.factory.createNodeArray([
+                    privateModifier,
+                    ...(member.modifiers || []),
+                  ]);
+                  return ts.factory.updateMethodDeclaration(
+                    member,
+                    updatedModifiers,
+                    member.asteriskToken,
+                    member.name,
+                    member.questionToken,
+                    member.typeParameters,
+                    member.parameters,
+                    member.type,
+                    member.body
+                  );
+                }
+              }
             }
-          }
-        }
 
-        // Handle Method Declarations (functions)
-        if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) {
-          if (node.name.text === declarationName) {
-            // Check if it's already private, skip if it is
+            // Handle Property Declarations (variables) inside the class
             if (
-              !node.modifiers?.some(
-                (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
-              )
+              ts.isPropertyDeclaration(member) &&
+              ts.isIdentifier(member.name)
             ) {
-              const privateModifier = ts.factory.createModifier(
-                ts.SyntaxKind.PrivateKeyword
-              );
-              const updatedModifiers = ts.factory.createNodeArray([
-                privateModifier,
-                ...(node.modifiers || []),
-              ]);
-              return ts.factory.updateMethodDeclaration(
-                node,
-                updatedModifiers,
-                node.asteriskToken,
-                node.name,
-                node.questionToken,
-                node.typeParameters,
-                node.parameters,
-                node.type,
-                node.body
-              );
+              if (member.name.text === declarationName) {
+                if (
+                  !member.modifiers?.some(
+                    (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
+                  )
+                ) {
+                  const privateModifier = ts.factory.createModifier(
+                    ts.SyntaxKind.PrivateKeyword
+                  );
+                  const updatedModifiers = ts.factory.createNodeArray([
+                    privateModifier,
+                    ...(member.modifiers || []),
+                  ]);
+                  return ts.factory.updatePropertyDeclaration(
+                    member,
+                    updatedModifiers,
+                    member.name,
+                    member.questionToken || member.exclamationToken,
+                    member.type,
+                    member.initializer
+                  );
+                }
+              }
             }
-          }
+
+            return member;
+          });
+
+          return ts.factory.updateClassDeclaration(
+            node,
+            node.modifiers,
+            node.name,
+            node.typeParameters,
+            node.heritageClauses,
+            updatedMembers
+          );
         }
 
         return ts.visitEachChild(node, visit, context);

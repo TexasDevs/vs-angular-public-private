@@ -2,22 +2,31 @@ export function isUsedInHtml(
   htmlContent: string,
   variableOrFunction: string
 ): boolean {
-  const interpolationRegex = new RegExp(
-    `{{\\s*${variableOrFunction}\\s*}}`,
-    "g"
+  // Improved regular expressions without the global 'g' flag
+  const interpolationRegex = new RegExp(`{{\\s*${variableOrFunction}\\s*}}`);
+  const propertyBindingRegex = new RegExp(
+    `\$begin:math:display$\\\\s*\\\\w+\\\\s*\\$end:math:display$\\s*=\\s*['"]?${variableOrFunction}['"]?`
   );
-  const bindingRegex = new RegExp(
-    `\$begin:math:display$.*?\\$end:math:display$\\s*=\\s*"${variableOrFunction}"`,
-    "g"
+  const eventBindingRegex = new RegExp(
+    `\$begin:math:text$.*?\\$end:math:text$\\s*=\\s*['"]?${variableOrFunction}\$begin:math:text$.*?\\$end:math:text$['"]?`
   );
-  const eventRegex = new RegExp(
-    `\$begin:math:text$.*?\\$end:math:text$\\s*=\\s*"${variableOrFunction}\$begin:math:text$.*?\\$end:math:text$"`,
-    "g"
-  );
+  const directBindingRegex = new RegExp(`\\b${variableOrFunction}\\b`);
 
-  return (
-    interpolationRegex.test(htmlContent) ||
-    bindingRegex.test(htmlContent) ||
-    eventRegex.test(htmlContent)
+  console.log(`Checking for variable/function: ${variableOrFunction}`);
+  console.log(`Interpolation match:`, interpolationRegex.test(htmlContent));
+  console.log(
+    `Property binding match:`,
+    propertyBindingRegex.test(htmlContent)
   );
+  console.log(`Event binding match:`, eventBindingRegex.test(htmlContent));
+  console.log(`Direct binding match:`, directBindingRegex.test(htmlContent));
+
+  const result =
+    interpolationRegex.test(htmlContent) ||
+    propertyBindingRegex.test(htmlContent) ||
+    eventBindingRegex.test(htmlContent) ||
+    directBindingRegex.test(htmlContent);
+
+  console.log(`Final result for ${variableOrFunction}: ${result}`);
+  return result;
 }

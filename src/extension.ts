@@ -2,7 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { analyzeAngularComponent } from "./analyze-angular-component";
-
+import { analyzeComponentFiles } from "./analyze-component-files";
+import * as ts from "typescript";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -29,7 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       const activeEditor = vscode.window.activeTextEditor;
 
-      // If there's no active editor or it's not a TypeScript file, show a warning
       if (
         !activeEditor ||
         !activeEditor.document.fileName.endsWith(".component.ts")
@@ -40,8 +40,37 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      // Call your analysis logic, passing in the current document
-      await analyzeAngularComponent(activeEditor.document);
+      const tsContent = activeEditor.document.getText();
+      const htmlFilePath = activeEditor.document.fileName.replace(
+        ".component.ts",
+        ".component.html"
+      );
+      const htmlDocument = await vscode.workspace.openTextDocument(
+        htmlFilePath
+      );
+      const htmlContent = htmlDocument.getText();
+
+      // Parse the TypeScript file into a SourceFile
+      const sourceFile = ts.createSourceFile(
+        activeEditor.document.fileName,
+        tsContent,
+        ts.ScriptTarget.Latest,
+        true
+      );
+
+      // Perform the analysis using both TS and HTML files
+      const updatedSourceFile = analyzeComponentFiles(sourceFile, htmlContent);
+
+      // Convert the updated SourceFile back to a string and apply changes to the document
+      const printer = ts.createPrinter();
+      const updatedTsContent = printer.printFile(updatedSourceFile);
+      const edit = new vscode.WorkspaceEdit();
+      const fullRange = new vscode.Range(
+        activeEditor.document.positionAt(0),
+        activeEditor.document.positionAt(tsContent.length)
+      );
+      edit.replace(activeEditor.document.uri, fullRange, updatedTsContent);
+      await vscode.workspace.applyEdit(edit);
 
       vscode.window.showInformationMessage("Component analysis complete!");
     }

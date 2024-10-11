@@ -5,54 +5,94 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 // import * as myExtension from '../../extension';
 import * as ts from "typescript";
+import * as prettier from "prettier";
 import * as fs from "fs";
 import { updateToPrivate } from "../update-to-private";
+import { analyzeComponentFiles } from "../analyze-component-files";
 
 suite("Extension Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");
 
-  test("Test analyzing component and updating to private", async () => {
-    // Simulate a TypeScript file for testing
-    const inputCode = `
-        variable1 = 'test';
+  test("Test analyzing component with HTML references and updating to private", async () => {
+    // Simulate a TypeScript file for testing, representing an Angular component
+    const tsInputCode = `
+        import { Component, Input } from '@angular/core';
 
-        function functionTest() {}
+        @Component({
+            selector: 'app-test',
+            templateUrl: './test.component.html',
+            styleUrls: ['./test.component.css']
+        })
+        export class TestComponent {
+            variable1 = 'test';
 
-        @Input() test: string;
+            functionTest() {}
 
-        private myPrivateFunction() {}
+            @Input() test: string;
+
+            private myPrivateFunction() {}
+        }
         `;
 
-    // Expected result after running your extension's command
-    const expectedOutput = `
-        variable1 = 'test';
+    // Simulate an HTML file content that references only variable1 and test
+    const htmlInputCode = `
+        <div>
+            {{ variable1 }}
+            <input [value]="test" />
+        </div>
+        `;
 
-        function functionTest() {}
+    // Expected result after running your extension's analysis
+    const expectedTsOutput = `
+        import { Component, Input } from '@angular/core';
 
-        @Input() test: string;
+        @Component({
+            selector: 'app-test',
+            templateUrl: './test.component.html',
+            styleUrls: ['./test.component.css']
+        })
+        export class TestComponent {
+            variable1 = 'test';
 
-        private myPrivateFunction() {}
+            private functionTest() {}
+
+            @Input() test: string;
+
+            private myPrivateFunction() {}
+        }
         `;
 
     // Simulate creating a TypeScript SourceFile
     const sourceFile = ts.createSourceFile(
-      "test.ts",
-      inputCode,
+      "test.component.ts",
+      tsInputCode,
       ts.ScriptTarget.Latest,
       true
     );
 
-    // Use the function from your extension that performs the transformation
-    const updatedSourceFile = updateToPrivate(sourceFile, "functionTest");
+    // Call your extension's logic to analyze both TS and HTML files
+    const updatedSourceFile = analyzeComponentFiles(sourceFile, htmlInputCode);
 
-    // Convert updated SourceFile back to string
+    // Convert the updated SourceFile back to string
     const printer = ts.createPrinter();
     const result = printer.printFile(updatedSourceFile);
 
+    // Use Prettier to format the result and expected output
+    const formattedResult = await prettier.format(result, {
+      parser: "typescript",
+    });
+    const formattedExpectedOutput = await prettier.format(expectedTsOutput, {
+      parser: "typescript",
+    });
+
+    // Log the outputs for debugging
+    console.log("Formatted Actual Result:\n", formattedResult);
+    console.log("Formatted Expected Output:\n", formattedExpectedOutput);
+
     // Assert that the result matches the expected output
     assert.strictEqual(
-      result.trim(),
-      expectedOutput.trim(),
+      formattedResult.trim(),
+      formattedExpectedOutput.trim(),
       "The transformation did not produce the expected result."
     );
   });
