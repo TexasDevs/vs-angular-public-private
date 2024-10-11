@@ -12,6 +12,7 @@ export function updateToPrivate(
         // Handle Property Declarations (variables)
         if (ts.isPropertyDeclaration(node) && ts.isIdentifier(node.name)) {
           if (node.name.text === declarationName) {
+            // Check if it's already private, skip if it is
             if (
               !node.modifiers?.some(
                 (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
@@ -28,7 +29,7 @@ export function updateToPrivate(
                 node,
                 updatedModifiers,
                 node.name,
-                node.questionToken || node.exclamationToken, // Handle question/exclamation tokens
+                node.questionToken || node.exclamationToken,
                 node.type,
                 node.initializer
               );
@@ -39,6 +40,7 @@ export function updateToPrivate(
         // Handle Method Declarations (functions)
         if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) {
           if (node.name.text === declarationName) {
+            // Check if it's already private, skip if it is
             if (
               !node.modifiers?.some(
                 (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
@@ -72,7 +74,6 @@ export function updateToPrivate(
       return ts.visitNode(rootNode, visit);
     };
 
-  // Cast the result to ts.SourceFile, since the transformer operates on a generic Node
   const result = ts.transform(sourceFile, [transformer])
     .transformed[0] as ts.SourceFile;
   return result;
