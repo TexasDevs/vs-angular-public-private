@@ -1,5 +1,4 @@
 import * as ts from "typescript";
-import * as fs from "fs";
 
 export function updateToPrivate(
   sourceFile: ts.SourceFile,

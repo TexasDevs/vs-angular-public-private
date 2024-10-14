@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import * as ts from "typescript";
 import * as prettier from "prettier";
 import * as fs from "fs";
-import { updateToPrivate } from "../update-to-private";
+import { updateToPrivate } from "../helpers/update-to-private";
 import { analyzeComponentFiles } from "../analyze-component-files";
 
 suite("Extension Test Suite", () => {

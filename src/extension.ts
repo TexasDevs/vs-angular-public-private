@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { analyzeAngularComponent } from "./analyze-angular-component";
 import { analyzeComponentFiles } from "./analyze-component-files";
 import * as ts from "typescript";
 // This method is called when your extension is activated
@@ -45,9 +44,8 @@ export function activate(context: vscode.ExtensionContext) {
         ".component.ts",
         ".component.html"
       );
-      const htmlDocument = await vscode.workspace.openTextDocument(
-        htmlFilePath
-      );
+      const htmlDocument =
+        await vscode.workspace.openTextDocument(htmlFilePath);
       const htmlContent = htmlDocument.getText();
 
       // Parse the TypeScript file into a SourceFile

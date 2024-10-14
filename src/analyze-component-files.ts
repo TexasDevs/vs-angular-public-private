@@ -1,18 +1,6 @@
 import * as ts from "typescript";
-import { updateToPrivate } from "./update-to-private";
-import { getDeclarations } from "./get-declarations";
-import { isUsedInHtml } from "./is-used-html";
-
-const ANGULAR_LIFECYCLE_HOOKS = [
-  "ngOnInit",
-  "ngOnDestroy",
-  "ngAfterViewInit",
-  "ngAfterViewChecked",
-  "ngAfterContentInit",
-  "ngAfterContentChecked",
-  "ngDoCheck",
-  "ngOnChanges",
-];
+import { getDeclarations, isUsedInHtml, updateToPrivate } from "./helpers";
+import { ANGULAR_LIFECYCLE_HOOKS } from "./helpers";
 
 export function analyzeComponentFiles(
   tsSourceFile: ts.SourceFile,
