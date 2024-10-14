@@ -96,4 +96,89 @@ suite("Extension Test Suite", () => {
       "The transformation did not produce the expected result."
     );
   });
+
+  test("Should ignore lifecycle hooks and decorated properties", () => {
+    const sourceCode = `
+      import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+      @Component({
+        selector: 'app-test',
+        templateUrl: './test.component.html',
+        styleUrls: ['./test.component.css']
+      })
+      export class TestComponent implements OnInit, OnDestroy {
+
+        @Input() inputProp: string = '';
+        @Output() outputProp = new EventEmitter<string>();
+
+        variable1: string = 'test';
+
+        ngOnInit(): void {
+          console.log('ngOnInit called');
+        }
+
+        ngOnDestroy(): void {
+          console.log('ngOnDestroy called');
+        }
+
+        unusedMethod(): void {
+          console.log('This method is not used in the HTML');
+        }
+
+        anotherUnusedMethod(): void {
+          console.log('Another unused method');
+        }
+      }
+    `;
+
+    const htmlContent = `
+      <div>{{ inputProp }}</div>
+    `;
+
+    // Parse the TypeScript code
+    const sourceFile = ts.createSourceFile(
+      "test.component.ts",
+      sourceCode,
+      ts.ScriptTarget.Latest,
+      true
+    );
+
+    // Run the analysis
+    const updatedSourceFile = analyzeComponentFiles(sourceFile, htmlContent);
+
+    // Convert the updated source file back to a string
+    const printer = ts.createPrinter();
+    const result = printer.printFile(updatedSourceFile);
+    console.log("final", result);
+    // Check the output
+    assert.ok(
+      result.includes("private variable1"),
+      "variable1 should be private"
+    );
+    assert.ok(
+      result.includes("private unusedMethod"),
+      "unusedMethod should be private"
+    );
+    assert.ok(
+      result.includes("private anotherUnusedMethod"),
+      "anotherUnusedMethod should be private"
+    );
+
+    // Check lifecycle hooks remain public
+    assert.ok(result.includes("ngOnInit"), "ngOnInit should remain public");
+    assert.ok(
+      result.includes("ngOnDestroy"),
+      "ngOnDestroy should remain public"
+    );
+
+    // Check that decorated properties remain public
+    assert.ok(
+      result.includes("@Input() inputProp"),
+      "inputProp should remain public"
+    );
+    assert.ok(
+      result.includes("@Output() outputProp"),
+      "outputProp should remain public"
+    );
+  });
 });
