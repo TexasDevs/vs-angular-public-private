@@ -11,12 +11,15 @@ export function analyzeComponentFiles(
   const declarations = getDeclarations(tsSourceFile);
   console.log("Declarations Found:", declarations);
 
+  // Create a copy of the source file to apply transformations sequentially
+  let updatedSourceFile = tsSourceFile;
+
   // Iterate over the declarations and update the private status based on HTML usage
   declarations.variables.forEach((variable) => {
     const isUsed = isUsedInHtml(htmlContent, variable);
     console.log(`Variable '${variable}' used in HTML: ${isUsed}`);
     if (!isUsed) {
-      updateToPrivate(tsSourceFile, variable);
+      updatedSourceFile = updateToPrivate(updatedSourceFile, variable);
     }
   });
 
@@ -24,9 +27,9 @@ export function analyzeComponentFiles(
     const isUsed = isUsedInHtml(htmlContent, fn);
     console.log(`Function '${fn}' used in HTML: ${isUsed}`);
     if (!isUsed) {
-      updateToPrivate(tsSourceFile, fn);
+      updatedSourceFile = updateToPrivate(updatedSourceFile, fn);
     }
   });
 
-  return tsSourceFile;
+  return updatedSourceFile;
 }
