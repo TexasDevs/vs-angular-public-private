@@ -1,71 +1,22 @@
-# publicprivate README
+# Angular Component Analyzer
 
-This is the README for your extension "publicprivate". After writing up a brief description, we recommend including the following sections.
+The Angular Component Analyzer is a Visual Studio Code extension that automatically analyzes your Angular component files to optimize code visibility and maintainability. It inspects `.component.ts` and `.component.html` files, ensuring that:
 
-## Features
+- Functions and variables defined in the `.ts` file and **not used** in the HTML are marked as `private`.
+- Properties decorated with Angular-specific decorators like `@Input()`, `@Output()`, or lifecycle hooks such as `ngOnInit` remain public.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This extension helps keep your Angular code clean and structured, reducing the need for manual oversight. Perfect for developers aiming to improve code readability and enforce best practices in their projects.
 
-For example if there is an image subfolder under your extension project workspace:
+## Key Features
 
-\!\[feature X\]\(images/feature-x.png\)
+- Automatically analyzes Angular component files (`.component.ts` and `.component.html`).
+- Automatically marks unused functions and variables in `.ts` files as `private`.
+- Preserves public access for properties with decorators like `@Input()` and Angular lifecycle hooks.
+- Helps maintain clean and maintainable Angular components.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## How to Use
 
-## Requirements
+1. Run the extension on an open `.component.ts` file or right-click on a folder to analyze all components in that folder.
+2. The extension will scan the component and apply the necessary visibility changes automatically.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Keep your Angular components tidy and improve code structure with ease!
