@@ -84,11 +84,6 @@ suite("Extension Test Suite", () => {
     const formattedExpectedOutput = await prettier.format(expectedTsOutput, {
       parser: "typescript",
     });
-
-    // Log the outputs for debugging
-    console.log("Formatted Actual Result:\n", formattedResult);
-    console.log("Formatted Expected Output:\n", formattedExpectedOutput);
-
     // Assert that the result matches the expected output
     assert.strictEqual(
       formattedResult.trim(),

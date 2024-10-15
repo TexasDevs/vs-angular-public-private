@@ -12,21 +12,11 @@ export function isUsedInHtml(
   );
   const directBindingRegex = new RegExp(`\\b${variableOrFunction}\\b`);
 
-  console.log(`Checking for variable/function: ${variableOrFunction}`);
-  console.log(`Interpolation match:`, interpolationRegex.test(htmlContent));
-  console.log(
-    `Property binding match:`,
-    propertyBindingRegex.test(htmlContent)
-  );
-  console.log(`Event binding match:`, eventBindingRegex.test(htmlContent));
-  console.log(`Direct binding match:`, directBindingRegex.test(htmlContent));
-
   const result =
     interpolationRegex.test(htmlContent) ||
     propertyBindingRegex.test(htmlContent) ||
     eventBindingRegex.test(htmlContent) ||
     directBindingRegex.test(htmlContent);
 
-  console.log(`Final result for ${variableOrFunction}: ${result}`);
   return result;
 }

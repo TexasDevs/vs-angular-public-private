@@ -16,21 +16,12 @@ export function updateToPrivate(
               ts.isMethodDeclaration(member) &&
               ts.isIdentifier(member.name)
             ) {
-              console.log(`Inspecting method: ${member.name.text}`);
               if (member.name.text === declarationName) {
-                console.log(
-                  `Method ${declarationName} will be rebuilt with private modifier`
-                );
-
                 const hasPrivateModifier = member.modifiers?.some(
                   (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
                 );
-                console.log(`Has private modifier: ${hasPrivateModifier}`);
 
                 if (!hasPrivateModifier) {
-                  console.log(
-                    `Applying private modifier to method: ${declarationName}`
-                  );
                   // Create a new modifiers array explicitly with the private modifier
                   const privateModifier = ts.factory.createModifier(
                     ts.SyntaxKind.PrivateKeyword
@@ -45,10 +36,6 @@ export function updateToPrivate(
                     ...existingModifiers,
                   ]);
 
-                  console.log(
-                    `Rebuilding method: ${declarationName} with new modifiers array.`
-                  );
-
                   // Rebuild the method declaration with the new modifiers
                   return ts.factory.createMethodDeclaration(
                     updatedModifiers,
@@ -61,10 +48,6 @@ export function updateToPrivate(
                     member.body
                   );
                 }
-              } else {
-                console.log(
-                  `Method ${member.name.text} does not match ${declarationName}, skipping.`
-                );
               }
             }
 
@@ -73,21 +56,12 @@ export function updateToPrivate(
               ts.isPropertyDeclaration(member) &&
               ts.isIdentifier(member.name)
             ) {
-              console.log(`Inspecting property: ${member.name.text}`);
               if (member.name.text === declarationName) {
-                console.log(
-                  `Property ${declarationName} will be rebuilt with private modifier`
-                );
-
                 const hasPrivateModifier = member.modifiers?.some(
                   (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword
                 );
-                console.log(`Has private modifier: ${hasPrivateModifier}`);
 
                 if (!hasPrivateModifier) {
-                  console.log(
-                    `Applying private modifier to property: ${declarationName}`
-                  );
                   const privateModifier = ts.factory.createModifier(
                     ts.SyntaxKind.PrivateKeyword
                   );
@@ -99,10 +73,6 @@ export function updateToPrivate(
                     ...existingModifiers,
                   ]);
 
-                  console.log(
-                    `Rebuilding property: ${declarationName} with new modifiers array.`
-                  );
-
                   return ts.factory.createPropertyDeclaration(
                     updatedModifiers,
                     member.name,
@@ -111,10 +81,6 @@ export function updateToPrivate(
                     member.initializer
                   );
                 }
-              } else {
-                console.log(
-                  `Property ${member.name.text} does not match ${declarationName}, skipping.`
-                );
               }
             }
 
